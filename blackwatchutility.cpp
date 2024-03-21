@@ -1,11 +1,37 @@
 // blackwatchutility.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <iostream>
+#include <dpp/dpp.h>
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	std::cout << "Token?: ";
+
+	std::string Token;
+	std::getline(std::cin, Token);
+
+	dpp::cluster bot(Token);
+	bot.on_log(dpp::utility::cout_logger());
+
+	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
+		if (event.command.get_command_name() == "hello") {
+			event.reply("world");
+		}
+	});
+
+	bot.on_message_reaction_add([](const dpp::message_reaction_add_t& event) {
+		
+	});
+
+	bot.on_ready([&bot](const dpp::ready_t& event) {
+		if (dpp::run_once<struct register_bot_commands>()) {
+			bot.global_command_create(dpp::slashcommand("hello", "hello world", bot.me.id));
+		}
+	});
+	
+	bot.start(false);
+
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
