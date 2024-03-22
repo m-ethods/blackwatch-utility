@@ -33,6 +33,20 @@ int main()
 			const std::vector<dpp::snowflake> MemberRoles = event.reacting_member.get_roles();
 			for (dpp::snowflake Role : MemberRoles) {
 				if (Role == "966106827827867759" or Role == "966106629928017940") {
+					dpp::message MessageToDelete = bot.message_get_sync(event.message_id, event.channel_id);
+					dpp::message Message;
+					dpp::embed LogEmbed;
+
+					LogEmbed.title = "MESSAGE MODERATED";
+					LogEmbed.description = std::format("<@{0}>: `{1}`\n **Moderator**: <@{2}> ({3})", event.message_author_id.str(), MessageToDelete.content, event.reacting_member.user_id.str(), event.reacting_member.get_nickname());
+					dpp::embed_footer Footer;
+					Footer.set_text(std::format("Channel : #{0}", bot.channel_get_sync(event.channel_id).name));
+					LogEmbed.set_footer(Footer);
+
+					Message.add_embed(LogEmbed);
+					Message.set_channel_id(dpp::snowflake("1220771311455047760"));
+
+					bot.message_create_sync(Message);
 					bot.message_delete(event.message_id, event.channel_id, nullptr);
 					break;
 				}
