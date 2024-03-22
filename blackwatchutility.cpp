@@ -3,6 +3,23 @@
 
 #include <dpp/dpp.h>
 
+std::vector<std::string> split(const std::string& s, char seperator)
+{
+	std::vector<std::string> output;
+	std::string::size_type prev_pos = 0, pos = 0;
+
+	while ((pos = s.find(seperator, pos)) != std::string::npos)
+	{
+		std::string substring(s.substr(prev_pos, pos - prev_pos));
+		output.push_back(substring);
+		prev_pos = ++pos;
+	}
+
+	output.push_back(s.substr(prev_pos, pos - prev_pos)); // Last word
+	return output;
+}
+
+
 int main()
 {
 	std::cout << "Token?: ";
@@ -26,13 +43,14 @@ int main()
 		*/
 
 		const dpp::emoji Emoji = event.reacting_emoji;
-		if (Emoji.name == "1984") {
+
+		if (Emoji.name == "1984" && (event.channel_id != "965597502868955157")) {
 			/*
 			Delete message if it's a discord moderator.
 			*/
 			const std::vector<dpp::snowflake> MemberRoles = event.reacting_member.get_roles();
 			for (dpp::snowflake Role : MemberRoles) {
-				if (Role == "966106827827867759" or Role == "966106629928017940") {
+				if (Role == "966106827827867759" || Role == "966106629928017940") {
 					dpp::message MessageToDelete = bot.message_get_sync(event.message_id, event.channel_id);
 					dpp::message Message;
 					dpp::embed LogEmbed;
@@ -50,6 +68,30 @@ int main()
 					bot.message_delete(event.message_id, event.channel_id, nullptr);
 					break;
 				}
+			}
+		}
+
+		if (Emoji.name == "✅") {
+			/*
+			Handling applications -- Accepting
+			*/
+		}
+
+		if (Emoji.name == "❎") {
+			/*
+			Handling applications -- Denying
+			*/
+			if (event.channel_id.str() == "965597502868955157" && event.message_author_id.str() == "0") {
+				dpp::message ApplicationMessage = bot.message_get_sync(event.message_id, event.channel_id);
+				
+				std::vector<std::string> Footer = split(ApplicationMessage.embeds[0].footer->text, ':');
+				
+				dpp::message ResultMessage;
+				ResultMessage.set_content(std::format("<@{0}> has declined {1}'s application.", event.reacting_member.user_id.str(), Footer[2]));
+				ResultMessage.set_channel_id(dpp::snowflake("965597210190417920"));
+
+				bot.message_create(ResultMessage);
+				bot.message_delete(event.message_id, event.channel_id);
 			}
 		}
 	});
