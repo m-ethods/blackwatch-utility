@@ -19,16 +19,35 @@ int main()
 		}
 	});
 
-	bot.on_message_reaction_add([](const dpp::message_reaction_add_t& event) {
-		
+	bot.on_message_reaction_add([&bot](const dpp::message_reaction_add_t& event) {
+		/*
+		Message reaction
+		This handles: deleting messages & applications.
+		*/
+
+		const dpp::emoji Emoji = event.reacting_emoji;
+		if (Emoji.name == "1984") {
+			/*
+			Delete message if it's a discord moderator.
+			*/
+			const std::vector<dpp::snowflake> MemberRoles = event.reacting_member.get_roles();
+			for (dpp::snowflake Role : MemberRoles) {
+				if (Role == "966106827827867759" or Role == "966106629928017940") {
+					bot.message_delete(event.message_id, event.channel_id, nullptr);
+					break;
+				}
+			}
+		}
 	});
 
+	/*/
 	bot.on_ready([&bot](const dpp::ready_t& event) {
 		if (dpp::run_once<struct register_bot_commands>()) {
 			bot.global_command_create(dpp::slashcommand("hello", "hello world", bot.me.id));
 		}
 	});
-	
+	/*/
+
 	bot.start(false);
 
 	return 0;
