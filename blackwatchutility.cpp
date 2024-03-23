@@ -2,6 +2,7 @@
 //
 
 #include <dpp/dpp.h>
+#include "roblox_ranking.h"
 
 std::vector<std::string> split(const std::string& s, char seperator)
 {
@@ -27,6 +28,12 @@ int main()
 	std::string Token;
 	std::getline(std::cin, Token);
 
+	std::cin.clear();
+	std::cout << std::endl << "Roblox Cookie?: ";
+
+	std::string RobloxCookie;
+	std::getline(std::cin, RobloxCookie);
+
 	dpp::cluster bot(Token);
 	bot.on_log(dpp::utility::cout_logger());
 
@@ -36,7 +43,7 @@ int main()
 		}
 	});
 
-	bot.on_message_reaction_add([&bot](const dpp::message_reaction_add_t& event) {
+	bot.on_message_reaction_add([&bot, &RobloxCookie](const dpp::message_reaction_add_t& event) {
 		/*
 		Message reaction
 		This handles: deleting messages & applications.
@@ -75,6 +82,20 @@ int main()
 			/*
 			Handling applications -- Accepting
 			*/
+			if (event.channel_id.str() == "965597502868955157" && event.message_author_id.str() == "0") {
+				dpp::message ApplicationMessage = bot.message_get_sync(event.message_id, event.channel_id);
+
+				std::vector<std::string> Footer = split(ApplicationMessage.embeds[0].footer->text, ':');
+
+				dpp::message ResultMessage;
+				ResultMessage.set_content(std::format("<@{0}> has accepted {1}'s application.", event.reacting_member.user_id.str(), Footer[2]));
+				ResultMessage.set_channel_id(dpp::snowflake("965597210190417920"));
+
+				RankUser(Footer[0], "12530867", "72549629", RobloxCookie, "");
+
+				bot.message_create(ResultMessage);
+				bot.message_delete(event.message_id, event.channel_id);
+			}
 		}
 
 		if (Emoji.name == "❎") {

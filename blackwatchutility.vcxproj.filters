@@ -18,5 +18,16 @@
     <ClCompile Include="blackwatchutility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="roblox_ranking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="roblox_ranking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
