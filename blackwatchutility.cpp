@@ -37,9 +37,10 @@ int main()
 	dpp::cluster bot(Token);
 	bot.on_log(dpp::utility::cout_logger());
 
-	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-		if (event.command.get_command_name() == "hello") {
-			event.reply("world");
+	bot.on_message_create([&bot](const dpp::message_create_t& event) {
+		if (event.msg.channel_id == "965597502868955157" && event.msg.webhook_id == "965601263834234920") {
+			bot.message_add_reaction(event.msg, "✅", nullptr);
+			bot.message_add_reaction(event.msg, "❎", nullptr);
 		}
 	});
 
@@ -50,6 +51,10 @@ int main()
 		*/
 
 		const dpp::emoji Emoji = event.reacting_emoji;
+
+		if (event.reacting_user.is_bot()) {
+			return;
+		}
 
 		if (Emoji.name == "1984" && (event.channel_id != "965597502868955157")) {
 			/*
@@ -116,14 +121,6 @@ int main()
 			}
 		}
 	});
-
-	/*/
-	bot.on_ready([&bot](const dpp::ready_t& event) {
-		if (dpp::run_once<struct register_bot_commands>()) {
-			bot.global_command_create(dpp::slashcommand("hello", "hello world", bot.me.id));
-		}
-	});
-	/*/
 
 	bot.start(false);
 
