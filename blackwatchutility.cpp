@@ -1,8 +1,24 @@
 // blackwatchutility.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// author: systemabec <@m-ethods>
 
 #include <dpp/dpp.h>
 #include "roblox_ranking.h"
+
+/*
+	Config
+*/
+
+const dpp::snowflake APPLICATIONS_CHANNEL_ID  { "965597502868955157" };
+const dpp::snowflake APPLICATIONS_CHANNEL_RESULT_ID { "965597210190417920" };
+const dpp::snowflake APPLICATIONS_WEBHOOK_ID  { "965601263834234920" };
+const dpp::snowflake MOD_EMOJI_NAME { "1984" };
+const std::string ROBLOX_GROUP_ID{ "12530867" };
+
+const std::vector<dpp::snowflake> NON_MODERABLE_CHANNEL = {dpp::snowflake("965597502868955157"), dpp::snowflake("966110885007466577")};
+const std::vector<dpp::snowflake> MOD_ROLES = { dpp::snowflake("965597598658486313"), dpp::snowflake("966106629928017940"), dpp::snowflake("966106827827867759")};
+const std::map<std::string, std::string> GROUP_RANKS = {
+	{"Intern", "72549629"},
+};
 
 std::vector<std::string> split(const std::string& s, char seperator)
 {
@@ -19,7 +35,6 @@ std::vector<std::string> split(const std::string& s, char seperator)
 	output.push_back(s.substr(prev_pos, pos - prev_pos)); // Last word
 	return output;
 }
-
 
 int main()
 {
@@ -38,7 +53,7 @@ int main()
 	bot.on_log(dpp::utility::cout_logger());
 
 	bot.on_message_create([&bot](const dpp::message_create_t& event) {
-		if (event.msg.channel_id == "965597502868955157" && event.msg.webhook_id == "965601263834234920") {
+		if (event.msg.channel_id == APPLICATIONS_CHANNEL_ID && event.msg.webhook_id == APPLICATIONS_WEBHOOK_ID) {
 			bot.message_add_reaction(event.msg, "✅", nullptr);
 			bot.message_add_reaction(event.msg, "❎", nullptr);
 		}
@@ -56,13 +71,13 @@ int main()
 			return;
 		}
 
-		if (Emoji.name == "1984" && (event.channel_id != "965597502868955157")) {
+		if (Emoji.name == "1984" && (std::find(NON_MODERABLE_CHANNEL.begin(), NON_MODERABLE_CHANNEL.end(), event.channel_id) == NON_MODERABLE_CHANNEL.end())) {
 			/*
 			Delete message if it's a discord moderator.
 			*/
 			const std::vector<dpp::snowflake> MemberRoles = event.reacting_member.get_roles();
 			for (dpp::snowflake Role : MemberRoles) {
-				if (Role == "966106827827867759" || Role == "966106629928017940") {
+				if (std::find(MOD_ROLES.begin(), MOD_ROLES.end(), Role) != MOD_ROLES.end()) {
 					dpp::message MessageToDelete = bot.message_get_sync(event.message_id, event.channel_id);
 					dpp::message Message;
 					dpp::embed LogEmbed;
@@ -74,7 +89,7 @@ int main()
 					LogEmbed.set_footer(Footer);
 
 					Message.add_embed(LogEmbed);
-					Message.set_channel_id(dpp::snowflake("1220771311455047760"));
+					Message.set_channel_id(APPLICATIONS_CHANNEL_RESULT_ID);
 
 					bot.message_create_sync(Message);
 					bot.message_delete(event.message_id, event.channel_id, nullptr);
@@ -87,16 +102,16 @@ int main()
 			/*
 			Handling applications -- Accepting
 			*/
-			if (event.channel_id.str() == "965597502868955157" && event.message_author_id.str() == "0") {
+			if (event.channel_id == APPLICATIONS_CHANNEL_ID && event.message_author_id.str() == "0") {
 				dpp::message ApplicationMessage = bot.message_get_sync(event.message_id, event.channel_id);
 
 				std::vector<std::string> Footer = split(ApplicationMessage.embeds[0].footer->text, ':');
 
 				dpp::message ResultMessage;
 				ResultMessage.set_content(std::format("<@{0}> has accepted {1}'s application.", event.reacting_member.user_id.str(), Footer[2]));
-				ResultMessage.set_channel_id(dpp::snowflake("965597210190417920"));
+				ResultMessage.set_channel_id(APPLICATIONS_CHANNEL_RESULT_ID);
 
-				RankUser(Footer[0], "12530867", "72549629", RobloxCookie, "");
+				RankUser(Footer[0], ROBLOX_GROUP_ID, GROUP_RANKS.at(Footer[1]), RobloxCookie, "");
 
 				bot.message_create(ResultMessage);
 				bot.message_delete(event.message_id, event.channel_id);
@@ -107,14 +122,14 @@ int main()
 			/*
 			Handling applications -- Denying
 			*/
-			if (event.channel_id.str() == "965597502868955157" && event.message_author_id.str() == "0") {
+			if (event.channel_id == APPLICATIONS_CHANNEL_ID && event.message_author_id.str() == "0") {
 				dpp::message ApplicationMessage = bot.message_get_sync(event.message_id, event.channel_id);
 				
 				std::vector<std::string> Footer = split(ApplicationMessage.embeds[0].footer->text, ':');
 				
 				dpp::message ResultMessage;
 				ResultMessage.set_content(std::format("<@{0}> has declined {1}'s application.", event.reacting_member.user_id.str(), Footer[2]));
-				ResultMessage.set_channel_id(dpp::snowflake("965597210190417920"));
+				ResultMessage.set_channel_id(APPLICATIONS_CHANNEL_RESULT_ID);
 
 				bot.message_create(ResultMessage);
 				bot.message_delete(event.message_id, event.channel_id);

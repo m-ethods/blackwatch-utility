@@ -1,3 +1,6 @@
+// roblox_ranking.cpp
+// author: systemabec <@m-ethods>
+
 #include <iostream>
 #include "cpr/cpr.h"
 #include "roblox_ranking.h"
