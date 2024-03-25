@@ -12,6 +12,8 @@ const dpp::snowflake APPLICATIONS_CHANNEL_ID  { "965597502868955157" };
 const dpp::snowflake APPLICATIONS_CHANNEL_RESULT_ID { "965597210190417920" };
 const dpp::snowflake APPLICATIONS_WEBHOOK_ID  { "965601263834234920" };
 const dpp::snowflake MOD_EMOJI_NAME { "1984" };
+const dpp::snowflake MOD_LOGS_CHANNEL {"1220771311455047760"};
+
 const std::string ROBLOX_GROUP_ID{ "12530867" };
 
 const std::vector<dpp::snowflake> NON_MODERABLE_CHANNEL = {dpp::snowflake("965597502868955157"), dpp::snowflake("966110885007466577")};
@@ -89,7 +91,7 @@ int main()
 					LogEmbed.set_footer(Footer);
 
 					Message.add_embed(LogEmbed);
-					Message.set_channel_id(APPLICATIONS_CHANNEL_RESULT_ID);
+					Message.set_channel_id(MOD_LOGS_CHANNEL);
 
 					bot.message_create_sync(Message);
 					bot.message_delete(event.message_id, event.channel_id, nullptr);
